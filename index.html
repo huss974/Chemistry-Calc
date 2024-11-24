@@ -3,175 +3,167 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Advanced Chemistry Calculator</title>
-    <script src="https://3dmol.csb.pitt.edu/build/3Dmol-min.js"></script>
-    <script src="https://www.chemdoodle.com/assets/javascripts/ChemDoodleWeb.js"></script>
-    <link rel="stylesheet" href="https://www.chemdoodle.com/assets/stylesheets/ChemDoodleWeb.css">
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-            color: #2c3e50;
-        }
-        h1 {
-            text-align: center;
-            color: #2980b9;
-        }
-        #visualization, #lewis {
-            margin: 20px auto;
-            width: 100%;
-            max-width: 500px;
-            height: 400px;
-            border: 1px solid #ccc;
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        pre {
-            background-color: #f9f9f9;
-            padding: 15px;
-            border-radius: 5px;
-            font-size: 16px;
-            overflow: auto;
-        }
-        footer {
-            text-align: center;
-            margin-top: 30px;
-            padding: 10px;
-            font-size: 14px;
-            color: #555;
-            border-top: 1px solid #ddd;
-        }
-        footer a {
-            color: #2980b9;
-            text-decoration: none;
-        }
-        footer a:hover {
-            text-decoration: underline;
-        }
-    </style>
-</head>
-<body>
-    <h1>Advanced Chemistry Calculator</h1>
-    <p>Enter the chemical formula (e.g., H2O, C6H12O6) and the number of moles:</p>
-    <form onsubmit="event.preventDefault(); calculate();">
-        <label for="formula">Chemical Formula:</label>
-        <input type="text" id="formula" required><br><br>
-
-        <label for="moles">Number of Moles:</label>
-        <input type="number" id="moles" step="any" required><br><br>
-
-        <button type="submit">Calculate</button>
-    </form>
-    <pre id="result"></pre>
-
-    <h2>Molecular Visualization (3D)</h2>
-    <div id="visualization">3D Molecular Geometry will appear here.</div>
-
-    <h2>Lewis Dot Structure (2D)</h2>
-    <canvas id="lewis"></canvas>
-
-    <footer>
-        This calculator was created by <a href="#" target="_blank">Alsalehindustries</a>. All rights reserved.
-    </footer>
-
+    <title>Chemistry Calculator</title>
     <script>
+        /**
+         * Chemistry Calculator
+         * Author: AlsalehIndustries
+         * License: MIT
+         * This code is owned and maintained by AlsalehIndustries. You are free to use and modify it under the terms of the MIT license.
+         */
+
+        // Complete periodic table with atomic numbers and atomic masses
         const periodicTable = {
-            H: { atomicMass: 1.008 }, He: { atomicMass: 4.0026 },
-            Li: { atomicMass: 6.94 }, Be: { atomicMass: 9.0122 }, B: { atomicMass: 10.81 },
-            C: { atomicMass: 12.011 }, N: { atomicMass: 14.007 }, O: { atomicMass: 15.999 },
-            F: { atomicMass: 18.998 }, Ne: { atomicMass: 20.180 }, Na: { atomicMass: 22.990 },
-            Mg: { atomicMass: 24.305 }, Al: { atomicMass: 26.982 }, Si: { atomicMass: 28.085 },
-            P: { atomicMass: 30.974 }, S: { atomicMass: 32.06 }, Cl: { atomicMass: 35.45 },
-            Ar: { atomicMass: 39.948 }, K: { atomicMass: 39.098 }, Ca: { atomicMass: 40.078 },
-            // Add all elements up to Og
-            Sc: { atomicMass: 44.956 }, Ti: { atomicMass: 47.867 }, V: { atomicMass: 50.942 },
-            Cr: { atomicMass: 51.996 }, Mn: { atomicMass: 54.938 }, Fe: { atomicMass: 55.845 },
-            Co: { atomicMass: 58.933 }, Ni: { atomicMass: 58.693 }, Cu: { atomicMass: 63.546 },
-            Zn: { atomicMass: 65.38 }, Ga: { atomicMass: 69.723 }, Ge: { atomicMass: 72.63 },
-            // Complete all remaining elements...
+            H: { atomicNumber: 1, atomicMass: 1.008 },
+            He: { atomicNumber: 2, atomicMass: 4.0026 },
+            Li: { atomicNumber: 3, atomicMass: 6.94 },
+            Be: { atomicNumber: 4, atomicMass: 9.0122 },
+            B: { atomicNumber: 5, atomicMass: 10.81 },
+            C: { atomicNumber: 6, atomicMass: 12.011 },
+            N: { atomicNumber: 7, atomicMass: 14.007 },
+            O: { atomicNumber: 8, atomicMass: 15.999 },
+            F: { atomicNumber: 9, atomicMass: 18.998 },
+            Ne: { atomicNumber: 10, atomicMass: 20.180 },
+            Na: { atomicNumber: 11, atomicMass: 22.990 },
+            Mg: { atomicNumber: 12, atomicMass: 24.305 },
+            Al: { atomicNumber: 13, atomicMass: 26.982 },
+            Si: { atomicNumber: 14, atomicMass: 28.085 },
+            P: { atomicNumber: 15, atomicMass: 30.974 },
+            S: { atomicNumber: 16, atomicMass: 32.06 },
+            Cl: { atomicNumber: 17, atomicMass: 35.45 },
+            Ar: { atomicNumber: 18, atomicMass: 39.948 },
+            K: { atomicNumber: 19, atomicMass: 39.098 },
+            Ca: { atomicNumber: 20, atomicMass: 40.078 },
+            Sc: { atomicNumber: 21, atomicMass: 44.956 },
+            Ti: { atomicNumber: 22, atomicMass: 47.867 },
+            V: { atomicNumber: 23, atomicMass: 50.942 },
+            Cr: { atomicNumber: 24, atomicMass: 51.996 },
+            Mn: { atomicNumber: 25, atomicMass: 54.938 },
+            Fe: { atomicNumber: 26, atomicMass: 55.845 },
+            Co: { atomicNumber: 27, atomicMass: 58.933 },
+            Ni: { atomicNumber: 28, atomicMass: 58.693 },
+            Cu: { atomicNumber: 29, atomicMass: 63.546 },
+            Zn: { atomicNumber: 30, atomicMass: 65.38 },
+            Ga: { atomicNumber: 31, atomicMass: 69.723 },
+            Ge: { atomicNumber: 32, atomicMass: 72.63 },
+            As: { atomicNumber: 33, atomicMass: 74.922 },
+            Se: { atomicNumber: 34, atomicMass: 78.971 },
+            Br: { atomicNumber: 35, atomicMass: 79.904 },
+            Kr: { atomicNumber: 36, atomicMass: 83.798 },
+            Rb: { atomicNumber: 37, atomicMass: 85.468 },
+            Sr: { atomicNumber: 38, atomicMass: 87.62 },
+            Y: { atomicNumber: 39, atomicMass: 88.906 },
+            Zr: { atomicNumber: 40, atomicMass: 91.224 },
+            Nb: { atomicNumber: 41, atomicMass: 92.906 },
+            Mo: { atomicNumber: 42, atomicMass: 95.95 },
+            Tc: { atomicNumber: 43, atomicMass: 98 },
+            Ru: { atomicNumber: 44, atomicMass: 101.07 },
+            Rh: { atomicNumber: 45, atomicMass: 102.91 },
+            Pd: { atomicNumber: 46, atomicMass: 106.42 },
+            Ag: { atomicNumber: 47, atomicMass: 107.87 },
+            Cd: { atomicNumber: 48, atomicMass: 112.41 },
+            In: { atomicNumber: 49, atomicMass: 114.82 },
+            Sn: { atomicNumber: 50, atomicMass: 118.71 },
+            Sb: { atomicNumber: 51, atomicMass: 121.76 },
+            Te: { atomicNumber: 52, atomicMass: 127.6 },
+            I: { atomicNumber: 53, atomicMass: 126.90 },
+            Xe: { atomicNumber: 54, atomicMass: 131.29 },
+            Cs: { atomicNumber: 55, atomicMass: 132.91 },
+            Ba: { atomicNumber: 56, atomicMass: 137.33 },
+            La: { atomicNumber: 57, atomicMass: 138.91 },
+            Ce: { atomicNumber: 58, atomicMass: 140.12 },
+            Pr: { atomicNumber: 59, atomicMass: 140.91 },
+            Nd: { atomicNumber: 60, atomicMass: 144.24 },
+            Pm: { atomicNumber: 61, atomicMass: 145 },
+            Sm: { atomicNumber: 62, atomicMass: 150.36 },
+            Eu: { atomicNumber: 63, atomicMass: 151.96 },
+            Gd: { atomicNumber: 64, atomicMass: 157.25 },
+            Tb: { atomicNumber: 65, atomicMass: 158.93 },
+            Dy: { atomicNumber: 66, atomicMass: 162.5 },
+            Ho: { atomicNumber: 67, atomicMass: 164.93 },
+            Er: { atomicNumber: 68, atomicMass: 167.26 },
+            Tm: { atomicNumber: 69, atomicMass: 168.93 },
+            Yb: { atomicNumber: 70, atomicMass: 173.05 },
+            Lu: { atomicNumber: 71, atomicMass: 174.97 },
+            Hf: { atomicNumber: 72, atomicMass: 178.49 },
+            Ta: { atomicNumber: 73, atomicMass: 180.95 },
+            W: { atomicNumber: 74, atomicMass: 183.84 },
+            Re: { atomicNumber: 75, atomicMass: 186.21 },
+            Os: { atomicNumber: 76, atomicMass: 190.23 },
+            Ir: { atomicNumber: 77, atomicMass: 192.22 },
+            Pt: { atomicNumber: 78, atomicMass: 195.08 },
+            Au: { atomicNumber: 79, atomicMass: 196.97 },
+            Hg: { atomicNumber: 80, atomicMass: 200.59 },
+            Tl: { atomicNumber: 81, atomicMass: 204.38 },
+            Pb: { atomicNumber: 82, atomicMass: 207.2 },
+            Bi: { atomicNumber: 83, atomicMass: 208.98 },
+            Po: { atomicNumber: 84, atomicMass: 209 },
+            At: { atomicNumber: 85, atomicMass: 210 },
+            Rn: { atomicNumber: 86, atomicMass: 222 },
+            Fr: { atomicNumber: 87, atomicMass: 223 },
+            Ra: { atomicNumber: 88, atomicMass: 226 },
+            Ac: { atomicNumber: 89, atomicMass: 227 },
+            Th: { atomicNumber: 90, atomicMass: 232.04 },
+            Pa: { atomicNumber: 91, atomicMass: 231.04 },
+            U: { atomicNumber: 92, atomicMass: 238.03 },
+            Np: { atomicNumber: 93, atomicMass: 237 },
+            Pu: { atomicNumber: 94, atomicMass: 244 },
+            Am: { atomicNumber: 95, atomicMass: 243 },
+            Cm: { atomicNumber: 96, atomicMass: 247 },
+            Bk: { atomicNumber: 97, atomicMass: 247 },
+            Cf: { atomicNumber: 98, atomicMass: 251 },
+            Es: { atomicNumber: 99, atomicMass: 252 },
+            Fm: { atomicNumber: 100, atomicMass: 257 },
+            Md: { atomicNumber: 101, atomicMass: 258 },
+            No: { atomicNumber: 102, atomicMass: 259 },
+            Lr: { atomicNumber: 103, atomicMass: 262 },
+            Rf: { atomicNumber: 104, atomicMass: 267 },
+            Db: { atomicNumber: 105, atomicMass: 270 },
+            Sg: { atomicNumber: 106, atomicMass: 271 },
+            Bh: { atomicNumber: 107, atomicMass: 270 },
+            Hs: { atomicNumber: 108, atomicMass: 277 },
+            Mt: { atomicNumber: 109, atomicMass: 278 },
+            Ds: { atomicNumber: 110, atomicMass: 281 },
+            Rg: { atomicNumber: 111, atomicMass: 282 },
+            Cn: { atomicNumber: 112, atomicMass: 285 },
+            Nh: { atomicNumber: 113, atomicMass: 286 },
+            Fl: { atomicNumber: 114, atomicMass: 289 },
+            Mc: { atomicNumber: 115, atomicMass: 290 },
+            Lv: { atomicNumber: 116, atomicMass: 293 },
+            Ts: { atomicNumber: 117, atomicMass: 294 },
+            Og: { atomicNumber: 118, atomicMass: 294 },
         };
 
-        const AVOGADRO_NUMBER = 6.022e23;
+        const AVOGADRO_NUMBER = 6.022e23; // Atoms/molecules per mole
 
+        // Function to parse chemical formulas
         function parseFormula(formula) {
-            const stack = [];
-            const elementCounts = {};
-            let currentElement = '';
-            let currentCount = '';
+            const regex = /([A-Z][a-z]*)(\d*)/g;
+            const elements = {};
+            let match;
 
-            for (let i = 0; i < formula.length; i++) {
-                const char = formula[i];
-
-                if (char.match(/[A-Z]/)) {
-                    // Save previous element and count
-                    if (currentElement) {
-                        elementCounts[currentElement] = (elementCounts[currentElement] || 0) + parseInt(currentCount || '1', 10);
-                    }
-                    // Start a new element
-                    currentElement = char;
-                    currentCount = '';
-                } else if (char.match(/[a-z]/)) {
-                    currentElement += char;
-                } else if (char.match(/\d/)) {
-                    currentCount += char;
-                } else if (char === '(') {
-                    // Push current counts onto stack
-                    stack.push({ elementCounts: { ...elementCounts }, multiplier: parseInt(currentCount || '1', 10) });
-                    currentElement = '';
-                    currentCount = '';
-                } else if (char === ')') {
-                    // Apply multiplier to current level
-                    if (currentElement) {
-                        elementCounts[currentElement] = (elementCounts[currentElement] || 0) + parseInt(currentCount || '1', 10);
-                        currentElement = '';
-                        currentCount = '';
-                    }
-
-                    const top = stack.pop();
-                    const multiplier = parseInt(formula[i + 1] || '1', 10);
-                    for (const [el, count] of Object.entries(elementCounts)) {
-                        top.elementCounts[el] = (top.elementCounts[el] || 0) + count * multiplier;
-                    }
-                    elementCounts = top.elementCounts;
-                    i++; // Skip the multiplier digit
-                }
-            }
-
-            // Add the last element
-            if (currentElement) {
-                elementCounts[currentElement] = (elementCounts[currentElement] || 0) + parseInt(currentCount || '1', 10);
-            }
-
-            return elementCounts;
-        }
-
-        function calculateMolarMass(elements) {
-            return Object.entries(elements).reduce((total, [element, count]) => {
+            while ((match = regex.exec(formula)) !== null) {
+                const element = match[1];
+                const count = parseInt(match[2] || "1", 10);
                 if (!periodicTable[element]) {
                     throw new Error(`Unknown element: ${element}`);
                 }
+                elements[element] = (elements[element] || 0) + count;
+            }
+
+            return elements;
+        }
+
+        // Function to calculate molar mass
+        function calculateMolarMass(elements) {
+            return Object.entries(elements).reduce((total, [element, count]) => {
                 return total + periodicTable[element].atomicMass * count;
             }, 0);
         }
 
-        function render3DGeometry(formula) {
-            const viewer = $3Dmol.createViewer("visualization", { defaultcolors: $3Dmol.elementColors.rasmol });
-            viewer.addModel(formula, "smiles");
-            viewer.setStyle({}, { stick: {} });
-            viewer.zoomTo();
-            viewer.render();
-        }
-
-        function renderLewisStructure(formula) {
-            const lewisCanvas = document.getElementById("lewis");
-            const sketcher = new ChemDoodle.SketcherCanvas(lewisCanvas, 500, 400);
-            sketcher.loadMolecule(ChemDoodle.readSMILES(formula));
-        }
-
+        // Function to handle calculations
         function calculate() {
-            const formula = document.getElementById("formula").value.trim();
+            const formula = document.getElementById("formula").value;
             const molesInput = parseFloat(document.getElementById("moles").value);
 
             if (isNaN(molesInput) || molesInput <= 0) {
@@ -191,13 +183,28 @@
                 result += `Number of atoms/molecules: ${(atomCount).toExponential(3)}\n`;
 
                 document.getElementById("result").textContent = result;
-
-                render3DGeometry(formula);
-                renderLewisStructure(formula);
             } catch (error) {
                 document.getElementById("result").textContent = error.message;
             }
         }
     </script>
+</head>
+<body>
+    <h1>Chemistry Calculator</h1>
+    <p>Enter the chemical formula (e.g., H2O, CO2) and the number of moles:</p>
+    <form onsubmit="event.preventDefault(); calculate();">
+        <label for="formula">Chemical Formula:</label>
+        <input type="text" id="formula" required><br><br>
+
+        <label for="moles">Number of Moles:</label>
+        <input type="number" id="moles" step="any" required><br><br>
+
+        <button type="submit">Calculate</button>
+    </form>
+    <pre id="result"></pre>
+
+    <footer>
+        <p>&copy; 2024 AlsalehIndustries. All rights reserved.</p>
+    </footer>
 </body>
 </html>
